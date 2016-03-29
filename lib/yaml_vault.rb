@@ -5,25 +5,35 @@ require 'active_support'
 
 module YamlVault
   class << self
-    def encrypt_yaml(passphrase, yaml, salt: nil, cipher: nil)
-      process_yaml(passphrase, yaml, salt: salt.to_s, cipher: cipher) do |cryptor, data|
+    def encrypt_yaml(passphrase, yaml, keys, salt: nil, cipher: nil)
+      process_yaml(passphrase, yaml, keys, salt: salt.to_s, cipher: cipher) do |cryptor, data|
         do_process(cryptor, data, :encrypt)
       end
     end
 
-    def decrypt_yaml(passphrase, yaml, salt: nil, cipher: nil)
-      process_yaml(passphrase, yaml, salt: salt.to_s, cipher: cipher) do |cryptor, data|
+    def decrypt_yaml(passphrase, yaml, keys, salt: nil, cipher: nil)
+      process_yaml(passphrase, yaml, keys, salt: salt.to_s, cipher: cipher) do |cryptor, data|
         do_process(cryptor, data, :decrypt)
       end
     end
 
     private
 
-    def process_yaml(passphrase, yaml, salt:, cipher:)
+    def process_yaml(passphrase, yaml, keys, salt:, cipher:)
       cryptor = ValueCryptor.new(passphrase, salt, cipher)
       data = YAML.load(ERB.new(File.read(yaml)).result)
-      vault_data = yield cryptor, data["vault"]
-      data["vault"] = vault_data
+      keys.each do |key|
+        target = key.inject(data) do |t, part|
+          t[part]
+        end
+
+        vault_data = yield cryptor, target
+
+        target_parent = key[0..-2].inject(data) do |t, part|
+          t[part]
+        end
+        target_parent[key[-1]] = vault_data
+      end
       data.to_yaml
     end
 
@@ -45,6 +55,8 @@ module YamlVault
             data[i] = cryptor.send(method, v)
           end
         end
+      else
+        cryptor.send(method, data)
       end
     end
   end
