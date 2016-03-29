@@ -1,0 +1,10 @@
+foo: bar
+
+vault:
+  secret_data: "hogehoge"
+  secrets:
+    - 1
+    - 2
+    - "three"
+    - true
+    - four: 4

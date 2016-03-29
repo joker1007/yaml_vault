@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+require 'yaml_vault'
+require 'active_support/core_ext'
+require 'thor'
+
+class YamlVault::Cli < Thor
+  include Thor::Actions
+
+  desc "encrypt", "Encrypt yaml file"
+  method_option :output, aliases: "-o", type: :string, required: true
+  method_option :salt, aliases: "-s", type: :string
+  method_option :passphrase, aliases: "-p", type: :string
+  method_option :cipher, type: :string
+  def encrypt(yaml_file)
+    passphrase = ENV["YAML_VAULT_PASSPHRASE"] || options[:passphrase] || ask("Enter passphrase:", echo: false)
+    raise "Please input passphrase" if passphrase.blank?
+    encrypted_yaml = YamlVault.encrypt_yaml(passphrase, yaml_file, salt: options[:salt], cipher: options[:cipher])
+    puts "encrypted #{yaml_file} -> #{options[:output]}"
+    File.open(options[:output], "w") { |f| f.write encrypted_yaml }
+  end
+
+  desc "decrypt", "Decrypt yaml file"
+  method_option :output, aliases: "-o", type: :string, required: true
+  method_option :salt, aliases: "-s", type: :string
+  method_option :passphrase, aliases: "-p", type: :string
+  method_option :cipher, type: :string
+  def decrypt(yaml_file)
+    passphrase = ENV["YAML_VAULT_PASSPHRASE"] || options[:passphrase] || ask("Enter passphrase:", echo: false)
+    raise "Please input passphrase" if passphrase.blank?
+    decrypted_yaml = YamlVault.decrypt_yaml(passphrase, yaml_file, salt: options[:salt], cipher: options[:cipher])
+    puts "decrypted #{yaml_file} -> #{options[:output]}"
+    File.open(options[:output], "w") { |f| f.write decrypted_yaml }
+  end
+end
+
+YamlVault::Cli.start
