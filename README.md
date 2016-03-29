@@ -20,6 +20,8 @@ Or install it yourself as:
 
 ## Usage
 
+### Encrypt
+
 ```yml
 # secrets.yml
 foo: bar
@@ -41,6 +43,8 @@ yaml_vault encrypts values under `vault` key.
 Enter passphrase: <enter your passphrase>
 ```
 
+output is ...
+
 ```yml
 # encrypted_secrets.yml
 ---
@@ -54,6 +58,31 @@ vault:
   - OENucHV3K2ZjSzlHTmdESEFJSHhVdz09LS15OUlRaCtlVHVmTDVFMFl2a2pXZkZBPT0=--00f630b1732e73678ebe918a386dd4152c5e9e99
   - four: SXBLZjc0Y2YzRnNBR0FaVzU5SkF0QT09LS1YN3FseWZYcTJ4cEVzSUJmSExOdnNBPT0=--c8dda633ddaba2853161655ab807926f23ea8e59
 ```
+
+If use `--key` option.
+
+```
+% yaml_vault encrypt secrets.yml -o encrypted_secrets.yml -k vault.secret_data
+Enter passphrase: <enter your passphrase>
+```
+
+output is ...
+
+```yml
+# encrypted_secrets.yml
+---
+foo: bar
+vault:
+  secret_data: SzZoOGlpcSs4UlBaQnhTYWx0YlN3NHk2QXhiZGYvVmpsc0c3ckllSlh1TT0tLU13ZERzRWsxaGc0Y090blNIdXVVMmc9PQ==--24b2af56d2563776ca316dbfa243333dd053fea1
+  secrets:
+  - 1
+  - 2
+  - "three"
+  - true
+  - four: 4
+```
+
+### Decrypt
 
 ```
 % yaml_vault decrypt encrypted_secrets.yml -o secrets.yml

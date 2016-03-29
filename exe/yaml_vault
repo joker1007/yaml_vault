@@ -7,9 +7,9 @@ require 'thor'
 class YamlVault::Cli < Thor
   include Thor::Actions
 
-  desc "encrypt", "Encrypt yaml file"
+  desc "encrypt YAML_FILE", "Encrypt yaml file"
   method_option :output, aliases: "-o", type: :string, required: true
-  method_option :key, aliases: "-k", type: :string, desc: "target key"
+  method_option :key, aliases: "-k", type: :string, desc: "target key (format: \"KEY1.INNER_KEY,KEY2\")", default: "vault"
   method_option :salt, aliases: "-s", type: :string
   method_option :passphrase, aliases: "-p", type: :string
   method_option :cipher, type: :string
@@ -22,9 +22,9 @@ class YamlVault::Cli < Thor
     File.open(options[:output], "w") { |f| f.write encrypted_yaml }
   end
 
-  desc "decrypt", "Decrypt yaml file"
+  desc "decrypt YAML_FILE", "Decrypt yaml file"
   method_option :output, aliases: "-o", type: :string, required: true
-  method_option :key, aliases: "-k", type: :string, desc: "target key"
+  method_option :key, aliases: "-k", type: :string, desc: "target key (format: \"KEY1.INNER_KEY,KEY2\")", default: "vault"
   method_option :salt, aliases: "-s", type: :string
   method_option :passphrase, aliases: "-p", type: :string
   method_option :cipher, type: :string
