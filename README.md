@@ -1,6 +1,6 @@
 # YamlVault
 
-Yaml file encryption/decription helper.
+Yaml file encryption/decryption helper.
 
 ## Installation
 
