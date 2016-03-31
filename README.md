@@ -2,6 +2,13 @@
 
 Yaml file encryption/decryption helper.
 
+## Encryption Algorithm
+
+yaml_vault uses ActiveSupport::MessageEncryptor.
+
+Default cipher is `aes-256-cbc`.
+Default sign digest is `SHA256`.
+
 ## Installation
 
 Add this line to your application's Gemfile:

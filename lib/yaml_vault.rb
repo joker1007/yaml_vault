@@ -5,22 +5,22 @@ require 'active_support'
 
 module YamlVault
   class << self
-    def encrypt_yaml(passphrase, yaml, keys, salt: nil, cipher: nil)
-      process_yaml(passphrase, yaml, keys, salt: salt.to_s, cipher: cipher) do |cryptor, data|
+    def encrypt_yaml(passphrase, sign_passphrase, yaml, keys, salt: nil, cipher: "aes-256-cbc", digest: "SHA256")
+      process_yaml(passphrase, sign_passphrase, yaml, keys, salt: salt.to_s, cipher: cipher, digest: digest) do |cryptor, data|
         do_process(cryptor, data, :encrypt)
       end
     end
 
-    def decrypt_yaml(passphrase, yaml, keys, salt: nil, cipher: nil)
-      process_yaml(passphrase, yaml, keys, salt: salt.to_s, cipher: cipher) do |cryptor, data|
+    def decrypt_yaml(passphrase, sign_passphrase, yaml, keys, salt: nil, cipher: "aes-256-cbc", digest: "SHA256")
+      process_yaml(passphrase, sign_passphrase, yaml, keys, salt: salt.to_s, cipher: cipher, digest: digest) do |cryptor, data|
         do_process(cryptor, data, :decrypt)
       end
     end
 
     private
 
-    def process_yaml(passphrase, yaml, keys, salt:, cipher:)
-      cryptor = ValueCryptor.new(passphrase, salt, cipher)
+    def process_yaml(passphrase, sign_passphrase, yaml, keys, salt:, cipher:, digest:)
+      cryptor = ValueCryptor.new(passphrase, sign_passphrase, salt, cipher, digest)
       data = YAML.load(ERB.new(File.read(yaml)).result)
       keys.each do |key|
         target = key.inject(data) do |t, part|
@@ -62,9 +62,15 @@ module YamlVault
   end
 
   class ValueCryptor
-    def initialize(passphrase, salt, cipher)
-      key = ActiveSupport::KeyGenerator.new(passphrase, cipher: cipher || 'aes-256-cbc').generate_key(salt)
-      @cryptor = ActiveSupport::MessageEncryptor.new(key)
+    def initialize(passphrase, sign_passphrase, salt, cipher, digest, key_size = 64)
+      key = ActiveSupport::KeyGenerator.new(passphrase).generate_key(salt, key_size)
+      signature_key = ActiveSupport::KeyGenerator.new(sign_passphrase).generate_key(salt, key_size) if sign_passphrase
+
+      if signature_key
+        @cryptor = ActiveSupport::MessageEncryptor.new(key, signature_key, cipher: cipher, digest: digest)
+      else
+        @cryptor = ActiveSupport::MessageEncryptor.new(key, cipher: cipher, digest: digest)
+      end
     end
 
     def encrypt(value)
@@ -75,4 +81,6 @@ module YamlVault
       @cryptor.decrypt_and_verify(value)
     end
   end
+
+  private_constant :ValueCryptor
 end
