@@ -98,6 +98,15 @@ Enter passphrase: <enter your passphrase>
 
 If `ENV["YAML_VAULT_PASSPHRASE"]`, use it as passphrase
 
+## How to use with docker
+
+```bash
+docker run -it \
+    -v `pwd`/:/vol \
+    plyo/yaml_vault \
+    yaml_vault encrypt /vol/secrets.yml -o /vol/encrypted_secrets.yml
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment. Run `bundle exec yaml_vault` to use the gem in this directory, ignoring other installed copies of this gem.
