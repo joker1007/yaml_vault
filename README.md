@@ -1,4 +1,5 @@
 # YamlVault
+[![Gem Version](https://badge.fury.io/rb/yaml_vault.svg)](https://badge.fury.io/rb/yaml_vault)
 
 Yaml file encryption/decryption helper.
 
