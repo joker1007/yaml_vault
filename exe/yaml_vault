@@ -8,10 +8,17 @@ class YamlVault::Cli < Thor
   include Thor::Actions
 
   class_option :key, aliases: "-k", type: :string, banner: "KEYNAME (format: \"KEY1.INNER_KEY,KEY2\")", desc: "target key", default: "vault"
+  class_option :cryptor, type: :string, enum: %w(simple aws-kms), default: "simple"
+
   class_option :salt, aliases: "-s", type: :string
   class_option :cipher, type: :string, desc: "Encrypt cipher (see. OpenSSL::Cipher.ciphers)", default: "aes-256-cbc"
   class_option :digest, type: :string, desc: "Sign digest algorithm (see. OpenSSL::Digest.constants)", default: "SHA256"
   class_option :use_sign_passphrase, type: :boolean, default: false
+
+  class_option :aws_kms_key_id, type: :string
+  class_option :aws_region, type: :string
+  class_option :aws_access_key_id, type: :string
+  class_option :aws_secret_access_key, type: :string
 
   desc "encrypt YAML_FILE", "Encrypt yaml file"
   method_option :output, aliases: "-o", type: :string, required: true
@@ -20,9 +27,14 @@ class YamlVault::Cli < Thor
     encrypted_yaml = YamlVault::Main.new(
       yaml_file,
       target_keys,
+      options[:cryptor],
       passphrase: passphrase,
       sign_passphrase: sign_passphrase,
-      salt: options[:salt], cipher: options[:cipher], digest: options[:digest]
+      salt: options[:salt], cipher: options[:cipher], digest: options[:digest],
+      aws_kms_key_id: options[:aws_kms_key_id],
+      aws_region: options[:aws_region],
+      aws_access_key_id: options[:aws_access_key_id],
+      aws_secret_access_key: options[:aws_secret_access_key]
     ).encrypt_yaml
     puts "encrypted #{yaml_file} -> #{options[:output]}"
     File.open(options[:output], "w") { |f| f.write encrypted_yaml }
@@ -35,9 +47,14 @@ class YamlVault::Cli < Thor
     decrypted_yaml = YamlVault::Main.new(
       yaml_file,
       target_keys,
+      options[:cryptor],
       passphrase: passphrase,
       sign_passphrase: sign_passphrase,
-      salt: options[:salt], cipher: options[:cipher], digest: options[:digest]
+      salt: options[:salt], cipher: options[:cipher], digest: options[:digest],
+      aws_kms_key_id: options[:aws_kms_key_id],
+      aws_region: options[:aws_region],
+      aws_access_key_id: options[:aws_access_key_id],
+      aws_secret_access_key: options[:aws_secret_access_key]
     ).decrypt_yaml
     puts "decrypted #{yaml_file} -> #{options[:output]}"
     File.open(options[:output], "w") { |f| f.write decrypted_yaml }
@@ -46,6 +63,8 @@ class YamlVault::Cli < Thor
   private
 
   def get_passphrase
+    return nil, nil unless options[:cryptor] == "simple"
+
     passphrase = ENV["YAML_VAULT_PASSPHRASE"] || ask("Enter passphrase:", echo: false)
     puts "\n"
     if ENV["YAML_VAULT_SIGN_PASSPHRASE"]

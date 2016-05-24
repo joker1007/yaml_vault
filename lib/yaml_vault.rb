@@ -1,53 +1,65 @@
 require 'yaml_vault/version'
 require 'yaml'
+require 'base64'
 require 'erb'
 require 'active_support'
 
 module YamlVault
   class Main
-    def initialize(yaml, keys, encryptor_name = nil, passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", digest: "SHA256")
+    def initialize(
+      yaml, keys, cryptor_name = nil,
+      passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", digest: "SHA256",
+      aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil
+    )
       @yaml = yaml
       @keys = keys
-      @encryptor = get_encryptor(encryptor_name)
 
       @passphrase = passphrase
       @sign_passphrase = sign_passphrase
       @salt = salt.to_s
       @cipher = cipher
       @digest = digest
+
+      @aws_kms_key_id = aws_kms_key_id
+      @aws_region = aws_region
+      @aws_access_key_id = aws_access_key_id
+      @aws_secret_access_key = aws_secret_access_key
+
+      @cryptor = get_cryptor(cryptor_name)
     end
 
     def encrypt_yaml
-      process_yaml do |cryptor, data|
-        do_process(cryptor, data, :encrypt)
+      process_yaml do |data|
+        do_process(data, :encrypt)
       end
     end
 
     def decrypt_yaml
-      process_yaml do |cryptor, data|
-        do_process(cryptor, data, :decrypt)
+      process_yaml do |data|
+        do_process(data, :decrypt)
       end
     end
 
     private
 
-    def get_encryptor(name)
+    def get_cryptor(name)
       if name == "simple"
-        ValueCryptor::Simple
+        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest)
+      elsif name == "aws-kms"
+        ValueCryptor::KMS.new(@aws_kms_key_id, region: @aws_region, aws_access_key_id: @aws_access_key_id, aws_secret_access_key: @aws_secret_access_key)
       else
-        ValueCryptor::Simple
+        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest)
       end
     end
 
     def process_yaml
-      value_cryptor = @encryptor.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest)
       data = YAML.load(ERB.new(File.read(@yaml)).result)
       @keys.each do |key|
         target = key.inject(data) do |t, part|
           t[part]
         end
 
-        vault_data = yield value_cryptor, target
+        vault_data = yield target
 
         target_parent = key[0..-2].inject(data) do |t, part|
           t[part]
@@ -57,26 +69,26 @@ module YamlVault
       data.to_yaml
     end
 
-    def do_process(cryptor, data, method)
+    def do_process(data, method)
       case data
       when Hash
         data.each do |k, v|
           if v.is_a?(Hash) || v.is_a?(Array)
-            do_process(cryptor, v, method)
+            do_process(v, method)
           else
-            data[k] = cryptor.send(method, v)
+            data[k] = @cryptor.send(method, v)
           end
         end
       when Array
         data.each_with_index do |v, i|
           if v.is_a?(Hash) || v.is_a?(Array)
-            do_process(cryptor, v, method)
+            do_process(v, method)
           else
-            data[i] = cryptor.send(method, v)
+            data[i] = @cryptor.send(method, v)
           end
         end
       else
-        cryptor.send(method, data)
+        @cryptor.send(method, data)
       end
     end
 
@@ -99,6 +111,28 @@ module YamlVault
 
         def decrypt(value)
           @cryptor.decrypt_and_verify(value)
+        end
+      end
+
+      class KMS
+        def initialize(key_id, region: nil, aws_access_key_id: nil, aws_secret_access_key: nil)
+          require 'aws-sdk'
+          options = {}
+          options[:region] = region if region
+          options[:access_key_id] = aws_access_key_id if aws_access_key_id
+          options[:secret_access_key] = aws_secret_access_key if aws_secret_access_key
+          @client = Aws::KMS::Client.new(options)
+          @key_id = key_id
+        end
+
+        def encrypt(value)
+          resp = @client.encrypt(key_id: @key_id, plaintext: YAML.dump(value))
+          Base64.strict_encode64(resp.ciphertext_blob)
+        end
+
+        def decrypt(value)
+          resp = @client.decrypt(ciphertext_blob: Base64.strict_decode64(value))
+          YAML.load(resp.plaintext)
         end
       end
     end
