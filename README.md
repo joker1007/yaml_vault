@@ -90,6 +90,20 @@ vault:
   - four: 4
 ```
 
+#### AWS KMS Encryption
+
+Max encryptable size is 4096 bytes. (value size as encoded by Base64)
+
+```
+% yaml_vault encrypt secrets.yml -o encrypted_secrets.yml --cryptor=aws-kms \
+  --aws-region=ap-northeast-1 \
+  --aws-kms-key-id=<kms-cms-key-id> \
+  --aws-access-key-id=<AWS_ACCESS_KEY_ID> \
+  --aws-secret-access-key=<AWS_SECRET_ACCESS_KEY>
+```
+
+If region, access_key_id, secret_access_key is not set, use `ENV["AWS_REGION"]`, `ENV["AWS_ACCESS_KEY_ID"]`, `ENV["AWS_SECRET_ACCESS_KEY"]`.
+
 ### Decrypt
 
 ```
@@ -98,6 +112,15 @@ Enter passphrase: <enter your passphrase>
 ```
 
 If `ENV["YAML_VAULT_PASSPHRASE"]`, use it as passphrase
+
+#### AWS KMS Decryption
+
+```
+% yaml_vault decrypt encrypted_secrets.yml -o secrets.yml --cryptor=aws-kms \
+  --aws-region=ap-northeast-1 \
+  --aws-access-key-id=<AWS_ACCESS_KEY_ID> \
+  --aws-secret-access-key=<AWS_SECRET_ACCESS_KEY>
+```
 
 ## Development
 
