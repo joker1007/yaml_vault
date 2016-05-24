@@ -17,13 +17,13 @@ class YamlVault::Cli < Thor
   method_option :output, aliases: "-o", type: :string, required: true
   def encrypt(yaml_file)
     passphrase, sign_passphrase = get_passphrase
-    encrypted_yaml = YamlVault.encrypt_yaml(
-      passphrase,
-      sign_passphrase,
+    encrypted_yaml = YamlVault::Main.new(
       yaml_file,
       target_keys,
+      passphrase: passphrase,
+      sign_passphrase: sign_passphrase,
       salt: options[:salt], cipher: options[:cipher], digest: options[:digest]
-    )
+    ).encrypt_yaml
     puts "encrypted #{yaml_file} -> #{options[:output]}"
     File.open(options[:output], "w") { |f| f.write encrypted_yaml }
   end
@@ -32,13 +32,13 @@ class YamlVault::Cli < Thor
   method_option :output, aliases: "-o", type: :string, required: true
   def decrypt(yaml_file)
     passphrase, sign_passphrase = get_passphrase
-    decrypted_yaml = YamlVault.decrypt_yaml(
-      passphrase,
-      sign_passphrase,
+    decrypted_yaml = YamlVault::Main.new(
       yaml_file,
       target_keys,
+      passphrase: passphrase,
+      sign_passphrase: sign_passphrase,
       salt: options[:salt], cipher: options[:cipher], digest: options[:digest]
-    )
+    ).decrypt_yaml
     puts "decrypted #{yaml_file} -> #{options[:output]}"
     File.open(options[:output], "w") { |f| f.write decrypted_yaml }
   end
