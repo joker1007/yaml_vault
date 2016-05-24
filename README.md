@@ -128,7 +128,7 @@ If `ENV["YAML_VAULT_PASSPHRASE"]`, use it as passphrase
 docker run -it \
   -v `pwd`/:/vol \
   joker1007/yaml_vault \
-  yaml_vault encrypt /vol/secrets.yml -o /vol/encrypted_secrets.yml
+  encrypt /vol/secrets.yml -o /vol/encrypted_secrets.yml
 ```
 
 ## Development

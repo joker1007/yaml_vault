@@ -1,7 +1,5 @@
-FROM ruby:2.3.1
+FROM ruby:2.3-alpine
 
-WORKDIR /usr/src/app
-ADD . /usr/src/app
+RUN gem install yaml_vault aws-sdk --no-document
 
-RUN ./bin/setup
-RUN bundle exec rake install
+ENTRYPOINT ["yaml_vault"]
