@@ -60,9 +60,10 @@ module YamlVault
     private
 
     def get_cryptor(name)
-      if name == "simple"
+      case name
+      when "simple"
         ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest)
-      elsif name == "aws-kms"
+      when "aws-kms", "kms"
         ValueCryptor::KMS.new(@aws_kms_key_id, region: @aws_region, aws_access_key_id: @aws_access_key_id, aws_secret_access_key: @aws_secret_access_key)
       else
         ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest)
