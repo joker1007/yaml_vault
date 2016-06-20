@@ -122,6 +122,30 @@ If `ENV["YAML_VAULT_PASSPHRASE"]`, use it as passphrase
   --aws-secret-access-key=<AWS_SECRET_ACCESS_KEY>
 ```
 
+### Direct Assignment
+
+```ruby
+# decrypt `configs['vault']` and `configs['production']['password']`
+
+# Simple Encryption
+configs = YamlVault::Main.from_file(
+  File.expand_path("../encrypted_sample.yml", __FILE__),
+  [["vault"], ["production", "password"]],
+  passphrase: ENV["YAML_VAULT_PASSPHRASE"], sign_passphrase: ENV["YAML_VAULT_SIGN_PASSPHRASE"]
+).decrypt
+
+# KMS
+configs = YamlVault::Main.from_file(
+  File.expand_path("../encrypted_sample.yml", __FILE__),
+  [["vault"], ["production", "password"]],
+  "kms",
+  aws_kms_key_id: ENV["AWS_KMS_KEY_ID"],
+  aws_region: ENV["AWS_REGION"],     # optional
+  aws_access_key_id: "xxxxxxx",      # optional
+  aws_secret_access_key: "xxxxxxx",  # optional
+).decrypt
+```
+
 ## How to use with docker
 
 ```bash

@@ -6,12 +6,21 @@ require 'active_support'
 
 module YamlVault
   class Main
+    class << self
+      def from_file(filename, keys, cryptor_name = nil, **options)
+        yaml_content = ERB.new(File.read(filename)).result
+        new(yaml_content, keys, cryptor_name, **options)
+      end
+
+      alias :from_content :new
+    end
+
     def initialize(
-      yaml, keys, cryptor_name = nil,
+      yaml_content, keys, cryptor_name = nil,
       passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", digest: "SHA256",
       aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil
     )
-      @yaml = yaml
+      @data = YAML.load(yaml_content)
       @keys = keys
 
       @passphrase = passphrase
@@ -28,16 +37,24 @@ module YamlVault
       @cryptor = get_cryptor(cryptor_name)
     end
 
-    def encrypt_yaml
+    def encrypt
       process_yaml do |data|
         do_process(data, :encrypt)
       end
     end
 
-    def decrypt_yaml
+    def decrypt
       process_yaml do |data|
         do_process(data, :decrypt)
       end
+    end
+
+    def encrypt_yaml
+      encrypt.to_yaml
+    end
+
+    def decrypt_yaml
+      decrypt.to_yaml
     end
 
     private
@@ -53,20 +70,19 @@ module YamlVault
     end
 
     def process_yaml
-      data = YAML.load(ERB.new(File.read(@yaml)).result)
       @keys.each do |key|
-        target = key.inject(data) do |t, part|
+        target = key.inject(@data) do |t, part|
           t[part]
         end
 
         vault_data = yield target
 
-        target_parent = key[0..-2].inject(data) do |t, part|
+        target_parent = key[0..-2].inject(@data) do |t, part|
           t[part]
         end
         target_parent[key[-1]] = vault_data
       end
-      data.to_yaml
+      @data
     end
 
     def do_process(data, method)
