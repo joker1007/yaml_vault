@@ -111,7 +111,7 @@ module YamlVault
 
     module ValueCryptor
       class Simple
-        def initialize(passphrase, sign_passphrase, salt, cipher, digest, key_size = 64)
+        def initialize(passphrase, sign_passphrase, salt, cipher, digest, key_size = 32)
           key = ActiveSupport::KeyGenerator.new(passphrase).generate_key(salt, key_size)
           signature_key = ActiveSupport::KeyGenerator.new(sign_passphrase).generate_key(salt, key_size) if sign_passphrase
 
