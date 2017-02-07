@@ -17,7 +17,7 @@ module YamlVault
 
     def initialize(
       yaml_content, keys, cryptor_name = nil,
-      passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", digest: "SHA256",
+      passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", key_len: 32, digest: "SHA256",
       aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil
     )
       @data = YAML.load(yaml_content)
@@ -27,6 +27,7 @@ module YamlVault
       @sign_passphrase = sign_passphrase
       @salt = salt.to_s
       @cipher = cipher
+      @key_len = key_len
       @digest = digest
 
       @aws_kms_key_id = aws_kms_key_id
@@ -62,11 +63,11 @@ module YamlVault
     def get_cryptor(name)
       case name
       when "simple"
-        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest)
+        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len)
       when "aws-kms", "kms"
         ValueCryptor::KMS.new(@aws_kms_key_id, region: @aws_region, aws_access_key_id: @aws_access_key_id, aws_secret_access_key: @aws_secret_access_key)
       else
-        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest)
+        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len)
       end
     end
 
