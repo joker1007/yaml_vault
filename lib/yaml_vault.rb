@@ -17,7 +17,7 @@ module YamlVault
 
     def initialize(
       yaml_content, keys, cryptor_name = nil,
-      passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", key_len: 32, digest: "SHA256",
+      passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", key_len: 32, signature_key_len: 64, digest: "SHA256",
       aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil
     )
       @data = YAML.load(yaml_content)
@@ -28,6 +28,7 @@ module YamlVault
       @salt = salt.to_s
       @cipher = cipher
       @key_len = key_len
+      @signature_key_len = signature_key_len
       @digest = digest
 
       @aws_kms_key_id = aws_kms_key_id
@@ -63,11 +64,11 @@ module YamlVault
     def get_cryptor(name)
       case name
       when "simple"
-        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len)
+        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len, @signature_key_len)
       when "aws-kms", "kms"
         ValueCryptor::KMS.new(@aws_kms_key_id, region: @aws_region, aws_access_key_id: @aws_access_key_id, aws_secret_access_key: @aws_secret_access_key)
       else
-        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len)
+        ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len, @signature_key_len)
       end
     end
 
@@ -112,9 +113,9 @@ module YamlVault
 
     module ValueCryptor
       class Simple
-        def initialize(passphrase, sign_passphrase, salt, cipher, digest, key_size = 32)
+        def initialize(passphrase, sign_passphrase, salt, cipher, digest, key_size = 32, signature_key_size = 64)
           key = ActiveSupport::KeyGenerator.new(passphrase).generate_key(salt, key_size)
-          signature_key = ActiveSupport::KeyGenerator.new(sign_passphrase).generate_key(salt, key_size) if sign_passphrase
+          signature_key = ActiveSupport::KeyGenerator.new(sign_passphrase).generate_key(salt, signature_key_size) if sign_passphrase
 
           if signature_key
             @cryptor = ActiveSupport::MessageEncryptor.new(key, signature_key, cipher: cipher, digest: digest)

@@ -14,6 +14,7 @@ class YamlVault::Cli < Thor
   class_option :cipher, type: :string, desc: "Encrypt cipher (see. OpenSSL::Cipher.ciphers)", default: "aes-256-cbc"
   class_option :key_len, type: :numeric, desc: "key length of cipher", default: 32
   class_option :digest, type: :string, desc: "Sign digest algorithm (see. OpenSSL::Digest.constants)", default: "SHA256"
+  class_option :signature_key_len, type: :numeric, desc: "key length of signature", default: 64
   class_option :use_sign_passphrase, type: :boolean, default: false
 
   class_option :aws_kms_key_id, type: :string
@@ -31,7 +32,8 @@ class YamlVault::Cli < Thor
       options[:cryptor],
       passphrase: passphrase,
       sign_passphrase: sign_passphrase,
-      salt: options[:salt], cipher: options[:cipher], key_len: options[:key_len], digest: options[:digest],
+      salt: options[:salt], cipher: options[:cipher], key_len: options[:key_len],
+      digest: options[:digest], signature_key_len: options[:signature_key_len],
       aws_kms_key_id: options[:aws_kms_key_id],
       aws_region: options[:aws_region],
       aws_access_key_id: options[:aws_access_key_id],
