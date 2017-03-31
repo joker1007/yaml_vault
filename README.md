@@ -90,6 +90,13 @@ vault:
   - four: 4
 ```
 
+`--key` option supports Symbol and Array.
+
+`:<key_name>` is symbol key.
+`[0]` is array key.
+
+ex. `production.:slaves.[0].:password`
+
 #### AWS KMS Encryption
 
 Max encryptable size is 4096 bytes. (value size as encoded by Base64)
