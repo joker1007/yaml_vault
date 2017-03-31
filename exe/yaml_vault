@@ -85,7 +85,22 @@ class YamlVault::Cli < Thor
   end
 
   def target_keys
-    options[:key] ? options[:key].split(/,\s?/).map { |k| k.split(".") } : ["vault"]
+    if options[:key]
+      options[:key].split(/,\s?/).map do |k|
+        k.split(".").map do |part|
+          case part
+          when /\A:(.*)\z/
+            $1.to_sym
+          when /\A\[(\d+)\]\z/
+            $1.to_i
+          else
+            part
+          end
+        end
+      end
+    else
+      ["vault"]
+    end
   end
 end
 
