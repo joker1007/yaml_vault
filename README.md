@@ -111,6 +111,16 @@ Max encryptable size is 4096 bytes. (value size as encoded by Base64)
 
 If region, access_key_id, secret_access_key is not set, use `ENV["AWS_REGION"]`, `ENV["AWS_ACCESS_KEY_ID"]`, `ENV["AWS_SECRET_ACCESS_KEY"]`.
 
+#### GCP KMS Encryption
+
+```
+% yaml_vault encrypt secrets.yml -o encrypted_secrets.yml --cryptor=gcp-kms \
+  --gcp-kms-resource-id=<kms-resource-id> \
+  --gcp-credential-file=<credential-json-file-path>
+```
+
+ex. `--gcp-kms-resource-id=projects/<PROJECT_ID>/locations/global/keyRings/<KEYRING_ID>/cryptoKeys/<KEY_ID>`
+
 ### Decrypt
 
 ```
@@ -129,6 +139,14 @@ If `ENV["YAML_VAULT_PASSPHRASE"]`, use it as passphrase
   --aws-secret-access-key=<AWS_SECRET_ACCESS_KEY>
 ```
 
+#### GCP KMS Decryption
+
+```
+% yaml_vault decrypt encrypted_secrets.yml -o secrets.yml --cryptor=gcp-kms \
+  --gcp-kms-resource-id=<kms-resource-id> \
+  --gcp-credential-file=<credential-json-file-path>
+```
+
 ### Direct Assignment
 
 ```ruby
@@ -141,7 +159,7 @@ configs = YamlVault::Main.from_file(
   passphrase: ENV["YAML_VAULT_PASSPHRASE"], sign_passphrase: ENV["YAML_VAULT_SIGN_PASSPHRASE"]
 ).decrypt
 
-# KMS
+# AWS KMS
 configs = YamlVault::Main.from_file(
   File.expand_path("../encrypted_sample.yml", __FILE__),
   [["vault"], ["production", "password"]],
@@ -150,6 +168,15 @@ configs = YamlVault::Main.from_file(
   aws_region: ENV["AWS_REGION"],     # optional
   aws_access_key_id: "xxxxxxx",      # optional
   aws_secret_access_key: "xxxxxxx",  # optional
+).decrypt
+
+# GCP KMS
+configs = YamlVault::Main.from_file(
+  File.expand_path("../encrypted_sample.yml", __FILE__),
+  [["vault"], ["production", "password"]],
+  "gcp-kms",
+  gcp_kms_resource_id: "xxxxxxx",
+  gcp_credential_file: File.expand_path("../credential.json", __FILE__)
 ).decrypt
 ```
 
