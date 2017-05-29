@@ -109,7 +109,7 @@ Max encryptable size is 4096 bytes. (value size as encoded by Base64)
   --aws-secret-access-key=<AWS_SECRET_ACCESS_KEY>
 ```
 
-If region, access_key_id, secret_access_key is not set, use `ENV["AWS_REGION"]`, `ENV["AWS_ACCESS_KEY_ID"]`, `ENV["AWS_SECRET_ACCESS_KEY"]`.
+If region, access_key_id, secret_access_key is not set, use `ENV["AWS_REGION"]`, `ENV["AWS_ACCESS_KEY_ID"]`, `ENV["AWS_SECRET_ACCESS_KEY"]` or default credentials or Instance Profile.
 
 #### GCP KMS Encryption
 
@@ -120,6 +120,8 @@ If region, access_key_id, secret_access_key is not set, use `ENV["AWS_REGION"]`,
 ```
 
 ex. `--gcp-kms-resource-id=projects/<PROJECT_ID>/locations/global/keyRings/<KEYRING_ID>/cryptoKeys/<KEY_ID>`
+
+If gcp_credential_file is not set, use Google Application Default Credentials flow (https://developers.google.com/identity/protocols/application-default-credentials)
 
 ### Decrypt
 
