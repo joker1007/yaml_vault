@@ -164,17 +164,22 @@ module YamlVault
       class GCPKMS
         def initialize(resource_id, credential_file)
           require 'googleauth'
-          require 'googleauth/stores/file_token_store'
           require 'google/apis/cloudkms_v1'
+
+          scope = [
+            'https://www.googleapis.com/auth/cloud-platform'
+          ]
 
           @resource_id = resource_id
           @client = Google::Apis::CloudkmsV1::CloudKMSService.new
-          @client.authorization = Google::Auth::ServiceAccountCredentials.make_creds(
-            json_key_io: File.open(credential_file),
-            scope: [
-              'https://www.googleapis.com/auth/cloud-platform'
-            ]
-          )
+          if credential_file
+            @client.authorization = Google::Auth::DefaultCredentials.make_creds(
+              json_key_io: File.open(credential_file),
+              scope: scope
+            )
+          else
+            @client.authorization = Google::Auth.get_application_default(scope)
+          end
         end
 
         def encrypt(value)
