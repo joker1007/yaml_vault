@@ -8,7 +8,7 @@ class YamlVault::Cli < Thor
   include Thor::Actions
 
   class_option :key, aliases: "-k", type: :string, banner: "KEYNAME (format: \"KEY1.INNER_KEY,KEY2\")", desc: "target key", default: "vault"
-  class_option :cryptor, type: :string, enum: %w(simple aws-kms), default: "simple"
+  class_option :cryptor, type: :string, enum: %w(simple aws-kms gcp-kms), default: "simple"
 
   class_option :salt, aliases: "-s", type: :string
   class_option :cipher, type: :string, desc: "Encrypt cipher (see. OpenSSL::Cipher.ciphers)", default: "aes-256-cbc"
@@ -21,6 +21,9 @@ class YamlVault::Cli < Thor
   class_option :aws_region, type: :string
   class_option :aws_access_key_id, type: :string
   class_option :aws_secret_access_key, type: :string
+
+  class_option :gcp_kms_resource_id, type: :string
+  class_option :gcp_credential_file, type: :string
 
   desc "encrypt YAML_FILE", "Encrypt yaml file"
   method_option :output, aliases: "-o", type: :string, required: true
@@ -37,7 +40,9 @@ class YamlVault::Cli < Thor
       aws_kms_key_id: options[:aws_kms_key_id],
       aws_region: options[:aws_region],
       aws_access_key_id: options[:aws_access_key_id],
-      aws_secret_access_key: options[:aws_secret_access_key]
+      aws_secret_access_key: options[:aws_secret_access_key],
+      gcp_kms_resource_id: options[:gcp_kms_resource_id],
+      gcp_credential_file: options[:gcp_credential_file]
     ).encrypt_yaml
     puts "encrypted #{yaml_file} -> #{options[:output]}"
     File.open(options[:output], "w") { |f| f.write encrypted_yaml }
@@ -57,7 +62,9 @@ class YamlVault::Cli < Thor
       aws_kms_key_id: options[:aws_kms_key_id],
       aws_region: options[:aws_region],
       aws_access_key_id: options[:aws_access_key_id],
-      aws_secret_access_key: options[:aws_secret_access_key]
+      aws_secret_access_key: options[:aws_secret_access_key],
+      gcp_kms_resource_id: options[:gcp_kms_resource_id],
+      gcp_credential_file: options[:gcp_credential_file]
     ).decrypt_yaml
     puts "decrypted #{yaml_file} -> #{options[:output]}"
     File.open(options[:output], "w") { |f| f.write decrypted_yaml }

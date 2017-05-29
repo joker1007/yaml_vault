@@ -18,7 +18,8 @@ module YamlVault
     def initialize(
       yaml_content, keys, cryptor_name = nil,
       passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", key_len: 32, signature_key_len: 64, digest: "SHA256",
-      aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil
+      aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil,
+      gcp_kms_resource_id: nil, gcp_credential_file: nil
     )
       @data = YAML.load(yaml_content)
       @keys = keys
@@ -35,6 +36,9 @@ module YamlVault
       @aws_region = aws_region
       @aws_access_key_id = aws_access_key_id
       @aws_secret_access_key = aws_secret_access_key
+
+      @gcp_kms_resource_id = gcp_kms_resource_id
+      @gcp_credential_file = gcp_credential_file
 
       @cryptor = get_cryptor(cryptor_name)
     end
@@ -67,6 +71,8 @@ module YamlVault
         ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len, @signature_key_len)
       when "aws-kms", "kms"
         ValueCryptor::KMS.new(@aws_kms_key_id, region: @aws_region, aws_access_key_id: @aws_access_key_id, aws_secret_access_key: @aws_secret_access_key)
+      when "gcp-kms"
+        ValueCryptor::GCPKMS.new(@gcp_kms_resource_id, @gcp_credential_file)
       else
         ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len, @signature_key_len)
       end
@@ -152,6 +158,35 @@ module YamlVault
         def decrypt(value)
           resp = @client.decrypt(ciphertext_blob: Base64.strict_decode64(value))
           YAML.load(resp.plaintext)
+        end
+      end
+
+      class GCPKMS
+        def initialize(resource_id, credential_file)
+          require 'googleauth'
+          require 'googleauth/stores/file_token_store'
+          require 'google/apis/cloudkms_v1'
+
+          @resource_id = resource_id
+          @client = Google::Apis::CloudkmsV1::CloudKMSService.new
+          @client.authorization = Google::Auth::ServiceAccountCredentials.make_creds(
+            json_key_io: File.open(credential_file),
+            scope: [
+              'https://www.googleapis.com/auth/cloud-platform'
+            ]
+          )
+        end
+
+        def encrypt(value)
+          request = Google::Apis::CloudkmsV1::EncryptRequest.new(plaintext: YAML.dump(value))
+          response = @client.encrypt_crypto_key(@resource_id, request)
+          Base64.strict_encode64(response.ciphertext)
+        end
+
+        def decrypt(value)
+          request = Google::Apis::CloudkmsV1::DecryptRequest.new(ciphertext: Base64.strict_decode64(value))
+          response = @client.decrypt_crypto_key(@resource_id, request)
+          YAML.load(response.plaintext)
         end
       end
     end
