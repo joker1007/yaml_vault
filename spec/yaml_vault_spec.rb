@@ -100,12 +100,8 @@ describe YamlVault do
           expect(encrypted["vault"]["secrets"][4]).not_to eq({"four" => 4})
           expect(encrypted["foo"]).to eq "bar"
         end
-      end
-    end
 
-    describe ".decrypt_yaml" do
-      it 'generate decrypt yaml' do
-        decrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../kms_encrypted_sample.yml", __FILE__), [["vault"]], "aws-kms").decrypt_yaml)
+        decrypted = YAML.load(YamlVault::Main.new(YAML.dump(encrypted), [["vault"]], "aws-kms").decrypt_yaml)
         aggregate_failures do
           expect(decrypted["vault"]["secret_data"]).to eq "hogehoge"
           expect(decrypted["vault"]["secrets"][0]).to eq 1
