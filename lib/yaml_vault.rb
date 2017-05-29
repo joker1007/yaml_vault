@@ -163,6 +163,7 @@ module YamlVault
 
       class GCPKMS
         def initialize(resource_id, credential_file)
+          raise "Need key resource id" unless resource_id
           require 'googleauth'
           require 'google/apis/cloudkms_v1'
 
