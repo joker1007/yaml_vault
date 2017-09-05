@@ -29,7 +29,6 @@ class YamlVault::Cli < Thor
   method_option :output, aliases: "-o", type: :string, required: true
   def encrypt(yaml_file)
     passphrase, sign_passphrase = get_passphrase
-    p target_keys
     encrypted_yaml = YamlVault::Main.from_file(
       yaml_file,
       target_keys,
