@@ -7,12 +7,14 @@ describe YamlVault do
         encrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../sample.yml", __FILE__), [["$", "vault"]], passphrase: "testpassphrase", sign_passphrase: "signpassphrase").encrypt_yaml)
         aggregate_failures do
           expect(encrypted["vault"]["secret_data"]).not_to eq "hogehoge"
-          expect(encrypted["vault"]["secrets"][0]).not_to eq 1
-          expect(encrypted["vault"]["secrets"][1]).not_to eq 2
-          expect(encrypted["vault"]["secrets"][2]).not_to eq "three"
+          expect(encrypted["vault"]["secrets"][0]).not_to eq 0
+          expect(encrypted["vault"]["secrets"][1]).not_to eq 1
+          expect(encrypted["vault"]["secrets"][2]).not_to eq "two"
           expect(encrypted["vault"]["secrets"][3]).not_to eq true
           expect(encrypted["vault"]["secrets"][4]).not_to eq({"four" => 4})
-          expect(encrypted["vault"]["secrets"][5]["a"]["b"]).not_to eq(1..10)
+          expect(encrypted["vault"]["secrets"][5]).not_to eq(:five)
+          expect(encrypted["vault"]["secrets"][6][:a]["b"]).not_to eq(1..10)
+          expect(encrypted["vault"]["secrets"][7][0]["key1"]).not_to eq("val1")
           expect(encrypted["foo"]).to eq "bar"
         end
       end
@@ -23,11 +25,14 @@ describe YamlVault do
         encrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../sample.yml", __FILE__), [["$", "vault"]], passphrase: "testpassphrase").encrypt_yaml)
         aggregate_failures do
           expect(encrypted["vault"]["secret_data"]).not_to eq "hogehoge"
-          expect(encrypted["vault"]["secrets"][0]).not_to eq 1
-          expect(encrypted["vault"]["secrets"][1]).not_to eq 2
-          expect(encrypted["vault"]["secrets"][2]).not_to eq "three"
+          expect(encrypted["vault"]["secrets"][0]).not_to eq 0
+          expect(encrypted["vault"]["secrets"][1]).not_to eq 1
+          expect(encrypted["vault"]["secrets"][2]).not_to eq "two"
           expect(encrypted["vault"]["secrets"][3]).not_to eq true
           expect(encrypted["vault"]["secrets"][4]).not_to eq({"four" => 4})
+          expect(encrypted["vault"]["secrets"][5]).not_to eq(:five)
+          expect(encrypted["vault"]["secrets"][6][:a]["b"]).not_to eq(1..10)
+          expect(encrypted["vault"]["secrets"][7][0]["key1"]).not_to eq("val1")
           expect(encrypted["foo"]).to eq "bar"
         end
       end
@@ -39,15 +44,14 @@ describe YamlVault do
       decrypted = YamlVault::Main.from_file(File.expand_path("../encrypted_sample.yml", __FILE__), [["$", "vault"]], passphrase: "testpassphrase", sign_passphrase: "signpassphrase").decrypt_hash
       aggregate_failures do
         expect(decrypted["vault"]["secret_data"]).to eq "hogehoge"
-        expect(decrypted["vault"]["secrets"][0]).to eq 1
-        expect(decrypted["vault"]["secrets"][1]).to eq 2
-        expect(decrypted["vault"]["secrets"][2]).to eq "three"
+        expect(decrypted["vault"]["secrets"][0]).to eq 0
+        expect(decrypted["vault"]["secrets"][1]).to eq 1
+        expect(decrypted["vault"]["secrets"][2]).to eq "two"
         expect(decrypted["vault"]["secrets"][3]).to eq true
         expect(decrypted["vault"]["secrets"][4]).to eq({"four" => 4})
-        expect(decrypted["vault"]["secrets"][5]["a"]["b"]).to eq(1..10)
-        expect(decrypted["vault"]["secrets"][6][0]["key1"]).to eq("val1")
-        expect(decrypted["vault"]["secrets"][6][0]["key2"]).to eq("val2")
-        expect(decrypted["vault"]["secrets"][6][1]["key3"]).to eq("val3")
+        expect(decrypted["vault"]["secrets"][5]).to eq(:five)
+        expect(decrypted["vault"]["secrets"][6][:a]["b"]).to eq(1..10)
+        expect(decrypted["vault"]["secrets"][7][0]["key1"]).to eq("val1")
         expect(decrypted["foo"]).to eq "bar"
       end
     end
@@ -58,14 +62,14 @@ describe YamlVault do
       decrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../encrypted_sample.yml", __FILE__), [["$", "vault"]], passphrase: "testpassphrase", sign_passphrase: "signpassphrase").decrypt_yaml)
       aggregate_failures do
         expect(decrypted["vault"]["secret_data"]).to eq "hogehoge"
-        expect(decrypted["vault"]["secrets"][0]).to eq 1
-        expect(decrypted["vault"]["secrets"][1]).to eq 2
-        expect(decrypted["vault"]["secrets"][2]).to eq "three"
+        expect(decrypted["vault"]["secrets"][0]).to eq 0
+        expect(decrypted["vault"]["secrets"][1]).to eq 1
+        expect(decrypted["vault"]["secrets"][2]).to eq "two"
         expect(decrypted["vault"]["secrets"][3]).to eq true
         expect(decrypted["vault"]["secrets"][4]).to eq({"four" => 4})
-        expect(decrypted["vault"]["secrets"][6][0]["key1"]).to eq("val1")
-        expect(decrypted["vault"]["secrets"][6][0]["key2"]).to eq("val2")
-        expect(decrypted["vault"]["secrets"][6][1]["key3"]).to eq("val3")
+        expect(decrypted["vault"]["secrets"][5]).to eq(:five)
+        expect(decrypted["vault"]["secrets"][6][:a]["b"]).to eq(1..10)
+        expect(decrypted["vault"]["secrets"][7][0]["key1"]).to eq("val1")
         expect(decrypted["foo"]).to eq "bar"
       end
     end
@@ -101,22 +105,28 @@ describe YamlVault do
         encrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../sample.yml", __FILE__), [["$", "vault"]], "aws-kms", aws_kms_key_id: ENV["AWS_KMS_KEY_ID"]).encrypt_yaml)
         aggregate_failures do
           expect(encrypted["vault"]["secret_data"]).not_to eq "hogehoge"
-          expect(encrypted["vault"]["secrets"][0]).not_to eq 1
-          expect(encrypted["vault"]["secrets"][1]).not_to eq 2
-          expect(encrypted["vault"]["secrets"][2]).not_to eq "three"
+          expect(encrypted["vault"]["secrets"][0]).not_to eq 0
+          expect(encrypted["vault"]["secrets"][1]).not_to eq 1
+          expect(encrypted["vault"]["secrets"][2]).not_to eq "two"
           expect(encrypted["vault"]["secrets"][3]).not_to eq true
           expect(encrypted["vault"]["secrets"][4]).not_to eq({"four" => 4})
+          expect(encrypted["vault"]["secrets"][5]).not_to eq(:five)
+          expect(encrypted["vault"]["secrets"][6][:a]["b"]).not_to eq(1..10)
+          expect(encrypted["vault"]["secrets"][7][0]["key1"]).not_to eq("val1")
           expect(encrypted["foo"]).to eq "bar"
         end
 
-        decrypted = YAML.load(YamlVault::Main.new(YAML.dump(encrypted), [["vault"]], "aws-kms").decrypt_yaml)
+        decrypted = YAML.load(YamlVault::Main.new(YAML.dump(encrypted), [["$", "vault"]], "aws-kms").decrypt_yaml)
         aggregate_failures do
           expect(decrypted["vault"]["secret_data"]).to eq "hogehoge"
-          expect(decrypted["vault"]["secrets"][0]).to eq 1
-          expect(decrypted["vault"]["secrets"][1]).to eq 2
-          expect(decrypted["vault"]["secrets"][2]).to eq "three"
+          expect(decrypted["vault"]["secrets"][0]).to eq 0
+          expect(decrypted["vault"]["secrets"][1]).to eq 1
+          expect(decrypted["vault"]["secrets"][2]).to eq "two"
           expect(decrypted["vault"]["secrets"][3]).to eq true
           expect(decrypted["vault"]["secrets"][4]).to eq({"four" => 4})
+          expect(decrypted["vault"]["secrets"][5]).to eq(:five)
+          expect(decrypted["vault"]["secrets"][6][:a]["b"]).to eq(1..10)
+          expect(decrypted["vault"]["secrets"][7][0]["key1"]).to eq("val1")
           expect(decrypted["foo"]).to eq "bar"
         end
       end
@@ -129,22 +139,28 @@ describe YamlVault do
         encrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../sample.yml", __FILE__), [["$", "vault"]], "gcp-kms", gcp_kms_resource_id: ENV["GCP_KMS_RESOURCE_ID"], gcp_credential_file: ENV["GCP_CREDENTIAL_FILE"]).encrypt_yaml)
         aggregate_failures do
           expect(encrypted["vault"]["secret_data"]).not_to eq "hogehoge"
-          expect(encrypted["vault"]["secrets"][0]).not_to eq 1
-          expect(encrypted["vault"]["secrets"][1]).not_to eq 2
-          expect(encrypted["vault"]["secrets"][2]).not_to eq "three"
+          expect(encrypted["vault"]["secrets"][0]).not_to eq 0
+          expect(encrypted["vault"]["secrets"][1]).not_to eq 1
+          expect(encrypted["vault"]["secrets"][2]).not_to eq "two"
           expect(encrypted["vault"]["secrets"][3]).not_to eq true
           expect(encrypted["vault"]["secrets"][4]).not_to eq({"four" => 4})
+          expect(encrypted["vault"]["secrets"][5]).not_to eq(:five)
+          expect(encrypted["vault"]["secrets"][6][:a]["b"]).not_to eq(1..10)
+          expect(encrypted["vault"]["secrets"][7][0]["key1"]).not_to eq("val1")
           expect(encrypted["foo"]).to eq "bar"
         end
 
         decrypted = YAML.load(YamlVault::Main.new(YAML.dump(encrypted), [["$", "vault"]], "gcp-kms", gcp_kms_resource_id: ENV["GCP_KMS_RESOURCE_ID"], gcp_credential_file: ENV["GCP_CREDENTIAL_FILE"]).decrypt_yaml)
         aggregate_failures do
           expect(decrypted["vault"]["secret_data"]).to eq "hogehoge"
-          expect(decrypted["vault"]["secrets"][0]).to eq 1
-          expect(decrypted["vault"]["secrets"][1]).to eq 2
-          expect(decrypted["vault"]["secrets"][2]).to eq "three"
+          expect(decrypted["vault"]["secrets"][0]).to eq 0
+          expect(decrypted["vault"]["secrets"][1]).to eq 1
+          expect(decrypted["vault"]["secrets"][2]).to eq "two"
           expect(decrypted["vault"]["secrets"][3]).to eq true
           expect(decrypted["vault"]["secrets"][4]).to eq({"four" => 4})
+          expect(decrypted["vault"]["secrets"][5]).to eq(:five)
+          expect(decrypted["vault"]["secrets"][6][:a]["b"]).to eq(1..10)
+          expect(decrypted["vault"]["secrets"][7][0]["key1"]).to eq("val1")
           expect(decrypted["foo"]).to eq "bar"
         end
       end
@@ -155,22 +171,28 @@ describe YamlVault do
         encrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../sample.yml", __FILE__), [["$", "vault"]], "gcp-kms", gcp_kms_resource_id: ENV["GCP_KMS_RESOURCE_ID"]).encrypt_yaml)
         aggregate_failures do
           expect(encrypted["vault"]["secret_data"]).not_to eq "hogehoge"
-          expect(encrypted["vault"]["secrets"][0]).not_to eq 1
-          expect(encrypted["vault"]["secrets"][1]).not_to eq 2
-          expect(encrypted["vault"]["secrets"][2]).not_to eq "three"
+          expect(encrypted["vault"]["secrets"][0]).not_to eq 0
+          expect(encrypted["vault"]["secrets"][1]).not_to eq 1
+          expect(encrypted["vault"]["secrets"][2]).not_to eq "two"
           expect(encrypted["vault"]["secrets"][3]).not_to eq true
           expect(encrypted["vault"]["secrets"][4]).not_to eq({"four" => 4})
+          expect(encrypted["vault"]["secrets"][5]).not_to eq(:five)
+          expect(encrypted["vault"]["secrets"][6][:a]["b"]).not_to eq(1..10)
+          expect(encrypted["vault"]["secrets"][7][0]["key1"]).not_to eq("val1")
           expect(encrypted["foo"]).to eq "bar"
         end
 
-        decrypted = YAML.load(YamlVault::Main.new(YAML.dump(encrypted), [["vault"]], "gcp-kms", gcp_kms_resource_id: ENV["GCP_KMS_RESOURCE_ID"]).decrypt_yaml)
+        decrypted = YAML.load(YamlVault::Main.new(YAML.dump(encrypted), [["$", "vault"]], "gcp-kms", gcp_kms_resource_id: ENV["GCP_KMS_RESOURCE_ID"]).decrypt_yaml)
         aggregate_failures do
           expect(decrypted["vault"]["secret_data"]).to eq "hogehoge"
-          expect(decrypted["vault"]["secrets"][0]).to eq 1
-          expect(decrypted["vault"]["secrets"][1]).to eq 2
-          expect(decrypted["vault"]["secrets"][2]).to eq "three"
+          expect(decrypted["vault"]["secrets"][0]).to eq 0
+          expect(decrypted["vault"]["secrets"][1]).to eq 1
+          expect(decrypted["vault"]["secrets"][2]).to eq "two"
           expect(decrypted["vault"]["secrets"][3]).to eq true
           expect(decrypted["vault"]["secrets"][4]).to eq({"four" => 4})
+          expect(decrypted["vault"]["secrets"][5]).to eq(:five)
+          expect(decrypted["vault"]["secrets"][6][:a]["b"]).to eq(1..10)
+          expect(decrypted["vault"]["secrets"][7][0]["key1"]).to eq("val1")
           expect(decrypted["foo"]).to eq "bar"
         end
       end
