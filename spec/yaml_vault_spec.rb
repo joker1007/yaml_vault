@@ -4,7 +4,7 @@ describe YamlVault do
   describe ".encrypt_yaml" do
     context "use sign_passphrase" do
       it 'generate encrypt yaml' do
-        encrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../sample.yml", __FILE__), [["vault"]], passphrase: "testpassphrase", sign_passphrase: "signpassphrase").encrypt_yaml)
+        encrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../sample.yml", __FILE__), [["$", "vault"]], passphrase: "testpassphrase", sign_passphrase: "signpassphrase").encrypt_yaml)
         aggregate_failures do
           expect(encrypted["vault"]["secret_data"]).not_to eq "hogehoge"
           expect(encrypted["vault"]["secrets"][0]).not_to eq 1

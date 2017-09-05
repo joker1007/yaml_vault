@@ -3,6 +3,9 @@ require 'yaml'
 require 'base64'
 require 'erb'
 require 'active_support'
+require 'pp'
+
+require 'yaml_vault/encrypted_tree_builder'
 
 module YamlVault
   class Main
@@ -21,7 +24,7 @@ module YamlVault
       aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil,
       gcp_kms_resource_id: nil, gcp_credential_file: nil
     )
-      @data = YAML.load(yaml_content)
+      @yaml = yaml_content
       @keys = keys
 
       @passphrase = passphrase
@@ -44,9 +47,8 @@ module YamlVault
     end
 
     def encrypt
-      process_yaml do |data|
-        do_process(data, :encrypt)
-      end
+      parser = YAML::Parser.new(YamlVault::EncryptedTreeBuilder.new(@keys, @cryptor))
+      parser.parse(@yaml).handler.root
     end
 
     def decrypt

@@ -1,4 +1,17 @@
+default: &default
+  hoge: fuga
+  aaa: true
+  bbb: 2
+
 foo: bar
+
+test:
+  <<: *default
+  <<: *default
+  hoge:
+    - 1
+    - 2
+    - 3
 
 vault:
   secret_data: "hogehoge"
