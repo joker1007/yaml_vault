@@ -104,7 +104,11 @@ module YamlVault
           if path == "*"
             true
           else
-            path == @path_stack[i]
+            if path.is_a?(Regexp)
+              path.match(@path_stack[i])
+            else
+              path == @path_stack[i]
+            end
           end
         end
       end

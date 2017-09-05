@@ -4,8 +4,22 @@ describe YamlVault do
   describe ".encrypt_yaml" do
     context "use sign_passphrase" do
       it 'generate encrypt yaml' do
-        encrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../sample.yml", __FILE__), [["$", "vault"]], passphrase: "testpassphrase", sign_passphrase: "signpassphrase").encrypt_yaml)
+        yaml_file = File.expand_path("../sample.yml", __FILE__)
+        origin = YAML.load_file(yaml_file)
+        encrypted = YAML.load(YamlVault::Main.from_file(yaml_file, [["$", "vault"], ["$", "default", /\Aa/]], passphrase: "testpassphrase", sign_passphrase: "signpassphrase").encrypt_yaml)
         aggregate_failures do
+          expect(origin["vault"]["secret_data"]).to eq "hogehoge"
+          expect(origin["vault"]["secrets"][0]).to eq 0
+          expect(origin["vault"]["secrets"][1]).to eq 1
+          expect(origin["vault"]["secrets"][2]).to eq "two"
+          expect(origin["vault"]["secrets"][3]).to eq true
+          expect(origin["vault"]["secrets"][4]).to eq({"four" => 4})
+          expect(origin["vault"]["secrets"][5]).to eq(:five)
+          expect(origin["vault"]["secrets"][6][:a]["b"]).to eq(1..10)
+          expect(origin["vault"]["secrets"][7][0]["key1"]).to eq("val1")
+          expect(origin["foo"]).to eq "bar"
+          expect(origin["default"]["aaa"]).to eq true
+
           expect(encrypted["vault"]["secret_data"]).not_to eq "hogehoge"
           expect(encrypted["vault"]["secrets"][0]).not_to eq 0
           expect(encrypted["vault"]["secrets"][1]).not_to eq 1
@@ -16,6 +30,7 @@ describe YamlVault do
           expect(encrypted["vault"]["secrets"][6][:a]["b"]).not_to eq(1..10)
           expect(encrypted["vault"]["secrets"][7][0]["key1"]).not_to eq("val1")
           expect(encrypted["foo"]).to eq "bar"
+          expect(encrypted["default"]["aaa"]).not_to eq true
         end
       end
     end
