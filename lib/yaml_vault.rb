@@ -3,6 +3,9 @@ require 'yaml'
 require 'base64'
 require 'erb'
 require 'active_support'
+require 'pp'
+
+require 'yaml_vault/yaml_tree_builder'
 
 module YamlVault
   class Main
@@ -21,7 +24,7 @@ module YamlVault
       aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil,
       gcp_kms_resource_id: nil, gcp_credential_file: nil
     )
-      @data = YAML.load(yaml_content)
+      @yaml = yaml_content
       @keys = keys
 
       @passphrase = passphrase
@@ -44,15 +47,21 @@ module YamlVault
     end
 
     def encrypt
-      process_yaml do |data|
-        do_process(data, :encrypt)
-      end
+      parser = YAML::Parser.new(YamlVault::YAMLTreeBuilder.new(@keys, @cryptor, :encrypt))
+      parser.parse(@yaml).handler.root
     end
 
     def decrypt
-      process_yaml do |data|
-        do_process(data, :decrypt)
-      end
+      parser = YAML::Parser.new(YamlVault::YAMLTreeBuilder.new(@keys, @cryptor, :decrypt))
+      parser.parse(@yaml).handler.root
+    end
+
+    def encrypt_hash
+      encrypt.to_ruby[0]
+    end
+
+    def decrypt_hash
+      decrypt.to_ruby[0]
     end
 
     def encrypt_yaml
@@ -75,45 +84,6 @@ module YamlVault
         ValueCryptor::GCPKMS.new(@gcp_kms_resource_id, @gcp_credential_file)
       else
         ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len, @signature_key_len)
-      end
-    end
-
-    def process_yaml
-      @keys.each do |key|
-        target = key.inject(@data) do |t, part|
-          t[part]
-        end
-
-        vault_data = yield target
-
-        target_parent = key[0..-2].inject(@data) do |t, part|
-          t[part]
-        end
-        target_parent[key[-1]] = vault_data
-      end
-      @data
-    end
-
-    def do_process(data, method)
-      case data
-      when Hash
-        data.each do |k, v|
-          if v.is_a?(Hash) || v.is_a?(Array)
-            do_process(v, method)
-          else
-            data[k] = @cryptor.send(method, v)
-          end
-        end
-      when Array
-        data.each_with_index do |v, i|
-          if v.is_a?(Hash) || v.is_a?(Array)
-            do_process(v, method)
-          else
-            data[i] = @cryptor.send(method, v)
-          end
-        end
-      else
-        @cryptor.send(method, data)
       end
     end
 

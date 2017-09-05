@@ -1,10 +1,35 @@
+default: &default
+  hoge: fuga
+  aaa: true
+  bbb: 2
+
 foo: bar
+
+complicated:
+  - 1
+  - ["hoge", "fuga"]
+  - [{key1: val1, key2: val2}, {key3: val3}]
+  - a:
+      b:
+        c: d
+        e: !ruby/range 1..10
+
+test:
+  <<: *default
+  hoge:
+    - 1
+    - 2
+    - 3
 
 vault:
   secret_data: "hogehoge"
   secrets:
+    - 0
     - 1
-    - 2
-    - "three"
+    - "two"
     - true
     - four: 4
+    - :five
+    - :a:
+        b: !ruby/range 1..10
+    - [{key1: val1, key2: val2}, {key3: val3}]

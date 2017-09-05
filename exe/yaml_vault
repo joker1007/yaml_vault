@@ -7,7 +7,7 @@ require 'thor'
 class YamlVault::Cli < Thor
   include Thor::Actions
 
-  class_option :key, aliases: "-k", type: :string, banner: "KEYNAME (format: \"KEY1.INNER_KEY,KEY2\")", desc: "target key", default: "vault"
+  class_option :key, aliases: "-k", type: :string, banner: "KEYNAME (format: \"KEY1.INNER_KEY,KEY2\")", desc: "target key", default: "$"
   class_option :cryptor, type: :string, enum: %w(simple aws-kms gcp-kms), default: "simple"
 
   class_option :salt, aliases: "-s", type: :string
@@ -29,6 +29,7 @@ class YamlVault::Cli < Thor
   method_option :output, aliases: "-o", type: :string, required: true
   def encrypt(yaml_file)
     passphrase, sign_passphrase = get_passphrase
+    p target_keys
     encrypted_yaml = YamlVault::Main.from_file(
       yaml_file,
       target_keys,
@@ -96,8 +97,12 @@ class YamlVault::Cli < Thor
       options[:key].split(/,\s?/).map do |k|
         k.split(".").map do |part|
           case part
-          when /\A:(.*)\z/
-            $1.to_sym
+          when /(?<=\A')(.*?)(?='\z)/
+            $1
+          when /(?<=\A")(.*?)(?="\z)/
+            $1
+          when %r{(?<=\A/)(.*?)(?=/\z)}
+            Regexp.new($1)
           when /\A\[(\d+)\]\z/
             $1.to_i
           else
@@ -106,7 +111,7 @@ class YamlVault::Cli < Thor
         end
       end
     else
-      ["vault"]
+      [["$"]]
     end
   end
 end
