@@ -5,8 +5,16 @@ default: &default
 
 foo: bar
 
+complicated:
+  - 1
+  - ["hoge", "fuga"]
+  - [{key1: val1, key2: val2}, {key3: val3}]
+  - a:
+      b:
+        c: d
+        e: !ruby/range 1..10
+
 test:
-  <<: *default
   <<: *default
   hoge:
     - 1
@@ -21,3 +29,6 @@ vault:
     - "three"
     - true
     - four: 4
+    - a:
+        b: !ruby/range 1..10
+    - [{key1: val1, key2: val2}, {key3: val3}]

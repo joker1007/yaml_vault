@@ -2,15 +2,17 @@
 require 'yaml'
 
 module YamlVault
-  class EncryptedTreeBuilder < YAML::TreeBuilder
-    def initialize(target_paths, cryptor)
+  class YAMLTreeBuilder < YAML::TreeBuilder
+    def initialize(target_paths, cryptor, mode)
       super()
-      @target_paths = target_paths
+
       @path_stack = []
+      @target_paths = target_paths
       @cryptor = cryptor
+      @mode = mode
     end
 
-    def start_document(version, tag_directives, implicit)
+    def start_document(*)
       result = super
       @path_stack.push "$"
       result
@@ -21,8 +23,26 @@ module YamlVault
       super
     end
 
+    def start_mapping(*)
+      if YAML::Nodes::Sequence === @last
+        current_path = @last.children.size
+        @path_stack << current_path
+      end
+
+      super
+    end
+
     def end_mapping(*)
       @path_stack.pop
+      super
+    end
+
+    def start_sequence(*)
+      if YAML::Nodes::Sequence === @last
+        current_path = @last.children.size
+        @path_stack << current_path
+      end
+
       super
     end
 
@@ -46,7 +66,24 @@ module YamlVault
       end
 
       if match_path?
-        result.value = @cryptor.encrypt(value)
+        if @mode == :encrypt
+          if tag
+            result.value = @cryptor.encrypt("#{tag} #{value}")
+            result.tag = nil
+            result.plain = true
+          else
+            result.value = @cryptor.encrypt(value)
+          end
+        else
+          decrypted_value = @cryptor.decrypt(value)
+          if decrypted_value =~ /\A(!.*?)\s+(.*)\z/
+            result.tag = $1
+            result.plain = false
+            result.value = $2
+          else
+            result.value = decrypted_value
+          end
+        end
       end
 
       @path_stack.pop

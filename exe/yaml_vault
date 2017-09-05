@@ -106,7 +106,7 @@ class YamlVault::Cli < Thor
         end
       end
     else
-      ["vault"]
+      ["$"]
     end
   end
 end
