@@ -113,10 +113,16 @@ module YamlVault
       class KMS
         def initialize(key_id, region: nil, aws_access_key_id: nil, aws_secret_access_key: nil)
           begin
-            require 'aws-sdk'
-          rescue LoadError
-            puts "Please install aws-sdk (>= 2.0)"
-            exit 1
+            begin
+              require 'aws-sdk-kms'
+            rescue LoadError
+              begin
+                require 'aws-sdk'
+              rescue LoadError
+                puts "Please install aws-sdk v2 or aws-sdk-kms (aws-sdk v3)"
+                exit 1
+              end
+            end
           end
           options = {}
           options[:region] = region if region
