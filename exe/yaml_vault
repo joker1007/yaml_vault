@@ -94,20 +94,7 @@ class YamlVault::Cli < Thor
   def target_keys
     if options[:key]
       options[:key].split(/,\s?/).map do |k|
-        k.split(".").map do |part|
-          case part
-          when /(?<=\A')(.*?)(?='\z)/
-            $1
-          when /(?<=\A")(.*?)(?="\z)/
-            $1
-          when %r{(?<=\A/)(.*?)(?=/\z)}
-            Regexp.new($1)
-          when /\A\[(\d+)\]\z/
-            $1.to_i
-          else
-            part
-          end
-        end
+        YamlVault::KeyParser.parse(k)
       end
     else
       [["$"]]

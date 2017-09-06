@@ -5,6 +5,7 @@ require 'erb'
 require 'active_support'
 require 'pp'
 
+require 'yaml_vault/key_parser'
 require 'yaml_vault/yaml_tree_builder'
 
 module YamlVault
