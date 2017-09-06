@@ -1,5 +1,8 @@
-FROM ruby:2.3-alpine
+FROM ruby:2.4-alpine
 
-RUN gem install yaml_vault --no-document
+ARG version
+
+RUN gem install yaml_vault --no-document --version ${version} \
+ && gem install aws-sdk-kms google-api-client
 
 ENTRYPOINT ["yaml_vault"]
