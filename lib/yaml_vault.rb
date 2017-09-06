@@ -112,7 +112,12 @@ module YamlVault
 
       class KMS
         def initialize(key_id, region: nil, aws_access_key_id: nil, aws_secret_access_key: nil)
-          require 'aws-sdk'
+          begin
+            require 'aws-sdk'
+          rescue LoadError
+            puts "Please install aws-sdk (>= 2.0)"
+            exit 1
+          end
           options = {}
           options[:region] = region if region
           options[:access_key_id] = aws_access_key_id if aws_access_key_id
@@ -135,8 +140,13 @@ module YamlVault
       class GCPKMS
         def initialize(resource_id, credential_file)
           raise "Need key resource id" unless resource_id
-          require 'googleauth'
-          require 'google/apis/cloudkms_v1'
+          begin
+            require 'googleauth'
+            require 'google/apis/cloudkms_v1'
+          rescue LoadError
+            puts "Please install google-api-client (>= 0.11.0)"
+            exit 1
+          end
 
           scope = [
             'https://www.googleapis.com/auth/cloud-platform'
