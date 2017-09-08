@@ -75,7 +75,7 @@ module YamlVault
             result.value = @cryptor.encrypt(value)
           end
         else
-          decrypted_value = @cryptor.decrypt(value)
+          decrypted_value = @cryptor.decrypt(value).to_s
           if decrypted_value =~ /\A(!.*?)\s+(.*)\z/
             result.tag = $1
             result.plain = false
