@@ -7,7 +7,7 @@ module YamlVault
           secrets = ActiveSupport::OrderedOptions.new
           yaml = config.paths["config/secrets"].first
           if File.exist?(yaml)
-            all_secrets = YamlVault::Main.from_content(IO.read(yaml), keys, cryptor_name, **options).decrypt
+            all_secrets = YamlVault::Main.from_content(IO.read(yaml), keys, cryptor_name, **options).decrypt_hash
             env_secrets = all_secrets[::Rails.env]
             secrets.merge!(env_secrets.symbolize_keys) if env_secrets
           end
