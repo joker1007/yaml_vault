@@ -75,8 +75,6 @@ vault:
     - [{key1: val1, key2: val2}, {key3: val3}]
 ```
 
-yaml_vault encrypts values under `vault` key.
-
 ```
 % yaml_vault encrypt secrets.yml -o encrypted_secrets.yml"
 Enter passphrase: <enter your passphrase>
@@ -128,7 +126,7 @@ vault:
 If use `--key` option.
 
 ```
-% yaml_vault encrypt secrets.yml -o encrypted_secrets.yml -k vault.secret_data
+% yaml_vault encrypt secrets.yml -o encrypted_secrets.yml -k $.vault.secret_data
 Enter passphrase: <enter your passphrase>
 ```
 
@@ -136,8 +134,26 @@ output is ...
 
 ```yml
 # encrypted_secrets.yml
----
+
+default: &default
+  hoge: fuga
+  aaa: true
+  bbb: 2
 foo: bar
+complicated:
+  - 1
+  - ["hoge", "fuga"]
+  - [{key1: val1, key2: val2}, {key3: val3}]
+  - a:
+      b:
+        c: d
+        e: !ruby/range 1..10
+test:
+  <<: *default
+  hoge:
+    - 1
+    - 2
+    - 3
 vault:
   secret_data: SzZoOGlpcSs4UlBaQnhTYWx0YlN3NHk2QXhiZGYvVmpsc0c3ckllSlh1TT0tLU13ZERzRWsxaGc0Y090blNIdXVVMmc9PQ==--24b2af56d2563776ca316dbfa243333dd053fea1
   secrets:
