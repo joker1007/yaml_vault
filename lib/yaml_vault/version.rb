@@ -1,3 +1,3 @@
 module YamlVault
-  VERSION = "1.0.0.beta3"
+  VERSION = "1.0.0"
 end
