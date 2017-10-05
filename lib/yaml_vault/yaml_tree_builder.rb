@@ -106,6 +106,8 @@ module YamlVault
           else
             if path.is_a?(Regexp)
               path.match(@path_stack[i])
+            elsif path.is_a?(Symbol)
+              path.inspect == @path_stack[i]
             else
               path == @path_stack[i]
             end

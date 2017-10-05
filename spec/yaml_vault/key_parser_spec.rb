@@ -9,7 +9,7 @@ describe YamlVault::KeyParser do
     context %q{str = $.foo.bar.*.[0].:sym.'hoge.fuga'."quoted.path"./regexp/} do
       let(:str) { %q{$.foo.bar.*.[0].:sym.'hoge.fuga'."quoted.path"./regexp/} }
 
-      it { is_expected.to eq(["$", "foo", "bar", "*", 0, ":sym", "hoge.fuga", "quoted.path", /regexp/]) }
+      it { is_expected.to eq(["$", "foo", "bar", "*", 0, :sym, "hoge.fuga", "quoted.path", /regexp/]) }
     end
 
     context %q{str = $.'[0]'.':hoge."fuga"'."'path"./\Areg\.exp/} do

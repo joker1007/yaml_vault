@@ -20,6 +20,8 @@ module YamlVault
           path << Regexp.new(s[1])
         elsif token = s.scan(/\[(\d+)\]/)
           path << s[1].to_i
+        elsif token = s.scan(/:([^\.]+)/)
+          path << s[1].to_sym
         elsif token = s.scan(/\./)
           # noop
         elsif token = s.scan(/[^\.]*/)
