@@ -1,5 +1,6 @@
 # YamlVault
 [![Gem Version](https://badge.fury.io/rb/yaml_vault.svg)](https://badge.fury.io/rb/yaml_vault)
+[![Build Status](https://travis-ci.org/joker1007/yaml_vault.svg?branch=master)](https://travis-ci.org/joker1007/yaml_vault)
 
 Yaml file encryption/decryption helper.
 
