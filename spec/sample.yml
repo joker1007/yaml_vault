@@ -33,3 +33,6 @@ vault:
     - :a:
         b: !ruby/range 1..10
     - [{key1: val1, key2: val2}, {key3: val3}]
+
+:symbolized_vault_key:
+  secret_data: "hogehoge"

@@ -52,6 +52,14 @@ describe YamlVault do
         end
       end
     end
+
+    context "include symbolized matching key" do
+      let(:key) { ["$", :symbolized_vault_key] }
+      it 'generate encrypt yaml' do
+        encrypted = YAML.load(YamlVault::Main.from_file(File.expand_path("../sample.yml", __FILE__), [key], passphrase: "testpassphrase").encrypt_yaml)
+        expect(encrypted[:symbolized_vault_key]["secret_data"]).not_to eq "hogehoge"
+      end
+    end
   end
 
   describe ".decrypt_hash" do
