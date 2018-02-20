@@ -22,7 +22,7 @@ module YamlVault
     def initialize(
       yaml_content, keys, cryptor_name = nil,
       passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", key_len: 32, signature_key_len: 64, digest: "SHA256",
-      aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil,
+      aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil, aws_profile: nil,
       gcp_kms_resource_id: nil, gcp_credential_file: nil
     )
       @yaml = yaml_content
@@ -40,6 +40,7 @@ module YamlVault
       @aws_region = aws_region
       @aws_access_key_id = aws_access_key_id
       @aws_secret_access_key = aws_secret_access_key
+      @aws_profile = aws_profile
 
       @gcp_kms_resource_id = gcp_kms_resource_id
       @gcp_credential_file = gcp_credential_file
@@ -80,7 +81,7 @@ module YamlVault
       when "simple"
         ValueCryptor::Simple.new(@passphrase, @sign_passphrase, @salt, @cipher, @digest, @key_len, @signature_key_len)
       when "aws-kms", "kms"
-        ValueCryptor::KMS.new(@aws_kms_key_id, region: @aws_region, aws_access_key_id: @aws_access_key_id, aws_secret_access_key: @aws_secret_access_key)
+        ValueCryptor::KMS.new(@aws_kms_key_id, region: @aws_region, aws_access_key_id: @aws_access_key_id, aws_secret_access_key: @aws_secret_access_key, aws_profile: @aws_profile)
       when "gcp-kms"
         ValueCryptor::GCPKMS.new(@gcp_kms_resource_id, @gcp_credential_file)
       else
@@ -111,7 +112,7 @@ module YamlVault
       end
 
       class KMS
-        def initialize(key_id, region: nil, aws_access_key_id: nil, aws_secret_access_key: nil)
+        def initialize(key_id, region: nil, aws_access_key_id: nil, aws_secret_access_key: nil, aws_profile: nil)
           begin
             begin
               require 'aws-sdk-kms'
@@ -128,6 +129,7 @@ module YamlVault
           options[:region] = region if region
           options[:access_key_id] = aws_access_key_id if aws_access_key_id
           options[:secret_access_key] = aws_secret_access_key if aws_secret_access_key
+          options[:profile] = aws_profile if aws_profile
           @client = Aws::KMS::Client.new(options)
           @key_id = key_id
         end
