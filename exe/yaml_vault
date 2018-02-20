@@ -21,6 +21,7 @@ class YamlVault::Cli < Thor
   class_option :aws_region, type: :string
   class_option :aws_access_key_id, type: :string
   class_option :aws_secret_access_key, type: :string
+  class_option :aws_profile, type: :string
 
   class_option :gcp_kms_resource_id, type: :string
   class_option :gcp_credential_file, type: :string
@@ -41,6 +42,7 @@ class YamlVault::Cli < Thor
       aws_region: options[:aws_region],
       aws_access_key_id: options[:aws_access_key_id],
       aws_secret_access_key: options[:aws_secret_access_key],
+      aws_profile: options[:aws_profile],
       gcp_kms_resource_id: options[:gcp_kms_resource_id],
       gcp_credential_file: options[:gcp_credential_file]
     ).encrypt_yaml
@@ -63,6 +65,7 @@ class YamlVault::Cli < Thor
       aws_region: options[:aws_region],
       aws_access_key_id: options[:aws_access_key_id],
       aws_secret_access_key: options[:aws_secret_access_key],
+      aws_profile: options[:aws_profile],
       gcp_kms_resource_id: options[:gcp_kms_resource_id],
       gcp_credential_file: options[:gcp_credential_file]
     ).decrypt_yaml
