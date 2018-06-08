@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{yaml encryption/decryption helper.}
   spec.description   = %q{yaml encryption/decryption helper.}
   spec.homepage      = "https://github.com/joker1007/yaml_vault"
+  spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"
