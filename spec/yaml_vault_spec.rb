@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe YamlVault do
+describe YamlVault, aggregate_failures: true do
   describe ".encrypt_yaml" do
     context "use sign_passphrase" do
       it 'generate encrypt yaml' do
@@ -15,8 +15,9 @@ describe YamlVault do
           expect(origin["vault"]["secrets"][3]).to eq true
           expect(origin["vault"]["secrets"][4]).to eq({"four" => 4})
           expect(origin["vault"]["secrets"][5]).to eq(:five)
-          expect(origin["vault"]["secrets"][6][:a]["b"]).to eq(1..10)
-          expect(origin["vault"]["secrets"][7][0]["key1"]).to eq("val1")
+          expect(origin["vault"]["secrets"][6]).to eq("bar")
+          expect(origin["vault"]["secrets"][7][:a]["b"]).to eq(1..10)
+          expect(origin["vault"]["secrets"][8][0]["key1"]).to eq("val1")
           expect(origin["foo"]).to eq "bar"
           expect(origin["default"]["aaa"]).to eq true
 
@@ -27,8 +28,9 @@ describe YamlVault do
           expect(encrypted["vault"]["secrets"][3]).not_to eq true
           expect(encrypted["vault"]["secrets"][4]).not_to eq({"four" => 4})
           expect(encrypted["vault"]["secrets"][5]).not_to eq(:five)
-          expect(encrypted["vault"]["secrets"][6][:a]["b"]).not_to eq(1..10)
-          expect(encrypted["vault"]["secrets"][7][0]["key1"]).not_to eq("val1")
+          expect(encrypted["vault"]["secrets"][6]).to eq("bar")
+          expect(encrypted["vault"]["secrets"][7][:a]["b"]).not_to eq(1..10)
+          expect(encrypted["vault"]["secrets"][8][0]["key1"]).not_to eq("val1")
           expect(encrypted["foo"]).to eq "bar"
           expect(encrypted["default"]["aaa"]).not_to eq true
         end
@@ -46,8 +48,9 @@ describe YamlVault do
           expect(encrypted["vault"]["secrets"][3]).not_to eq true
           expect(encrypted["vault"]["secrets"][4]).not_to eq({"four" => 4})
           expect(encrypted["vault"]["secrets"][5]).not_to eq(:five)
-          expect(encrypted["vault"]["secrets"][6][:a]["b"]).not_to eq(1..10)
-          expect(encrypted["vault"]["secrets"][7][0]["key1"]).not_to eq("val1")
+          expect(encrypted["vault"]["secrets"][6]).to eq("bar")
+          expect(encrypted["vault"]["secrets"][7][:a]["b"]).not_to eq(1..10)
+          expect(encrypted["vault"]["secrets"][8][0]["key1"]).not_to eq("val1")
           expect(encrypted["foo"]).to eq "bar"
         end
       end

@@ -92,7 +92,9 @@ module YamlVault
     end
 
     def alias(anchor)
-      @path_stack.pop
+      unless @last.is_a?(YAML::Nodes::Sequence)
+        @path_stack.pop
+      end
       super
     end
 

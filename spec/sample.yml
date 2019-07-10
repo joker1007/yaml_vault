@@ -3,7 +3,7 @@ default: &default
   aaa: true
   bbb: 2
 
-foo: bar
+foo: &x bar
 
 complicated:
   - 1
@@ -30,6 +30,7 @@ vault:
     - true
     - four: 4
     - :five
+    - *x
     - :a:
         b: !ruby/range 1..10
     - [{key1: val1, key2: val2}, {key3: val3}]
