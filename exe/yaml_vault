@@ -8,6 +8,8 @@ class YamlVault::Cli < Thor
   include Thor::Actions
 
   class_option :key, aliases: "-k", type: :string, banner: "KEYNAME (format: \"KEY1.INNER_KEY,KEY2\")", desc: "target key", default: "$"
+  class_option :prefix, type: :string, banner: "PREFIX", desc: "prefix string to add to the encrypted value"
+  class_option :suffix, type: :string, banner: "SUFFIX", desc: "suffix string to add to the encrypted value"
   class_option :cryptor, type: :string, enum: %w(simple aws-kms gcp-kms), default: "simple"
 
   class_option :salt, aliases: "-s", type: :string
@@ -33,6 +35,8 @@ class YamlVault::Cli < Thor
     encrypted_yaml = YamlVault::Main.from_file(
       yaml_file,
       target_keys,
+      options[:prefix],
+      options[:suffix],
       options[:cryptor],
       passphrase: passphrase,
       sign_passphrase: sign_passphrase,
@@ -57,6 +61,8 @@ class YamlVault::Cli < Thor
     decrypted_yaml = YamlVault::Main.from_file(
       yaml_file,
       target_keys,
+      options[:prefix],
+      options[:suffix],
       options[:cryptor],
       passphrase: passphrase,
       sign_passphrase: sign_passphrase,
