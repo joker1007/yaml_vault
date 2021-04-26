@@ -8,8 +8,8 @@ module YamlVault
 
       @path_stack = []
       @target_paths = target_paths
-      @prefix = prefix.to_s
-      @suffix = suffix.to_s
+      @prefix = prefix
+      @suffix = suffix
       @cryptor = cryptor
       @mode = mode
     end
@@ -105,13 +105,7 @@ module YamlVault
     private
 
     def handle_prefix(value)
-      if @prefix != nil
-        value = "#{@prefix}#{value}"
-      end
-      if @suffix != nil
-        value = "#{value}#{@suffix}"
-      end
-      return value
+      return "#{@prefix}#{value}#{@suffix}"
     end
 
     def handle_suffix(value)

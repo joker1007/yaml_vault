@@ -180,7 +180,7 @@ vault:
 
 ex. `$.production.:slaves.[0].*.:password`
 
-You can also use the `--prefix` and `--suffix` options to format the encrypted value. i.e by providing `--prefix "ENC(" --sufix ")"` you can get the following output from the above example:
+You can also use the `--prefix` and `--suffix` options to format the encrypted value. i.e by providing `--prefix "ENC(" --suffix ")"` you can get the following output from the above example:
 
 ```yml
 # encrypted_secrets.yml
