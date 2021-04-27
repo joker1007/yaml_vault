@@ -180,6 +180,18 @@ vault:
 
 ex. `$.production.:slaves.[0].*.:password`
 
+You can also use the `--prefix` and `--suffix` options to format the encrypted value. i.e by providing `--prefix "ENC(" --suffix ")"` you can get the following output from the above example:
+
+```yml
+# encrypted_secrets.yml
+
+default: &default
+...
+vault:
+  secret_data: ENC(SzZoOGlpcSs4UlBaQnhTYWx0YlN3NHk2QXhiZGYvVmpsc0c3ckllSlh1TT0tLU13ZERzRWsxaGc0Y090blNIdXVVMmc9PQ==--24b2af56d2563776ca316dbfa243333dd053fea1)
+...
+```
+
 #### AWS KMS Encryption
 
 Max encryptable size is 4096 bytes. (value size as encoded by Base64)
@@ -214,6 +226,8 @@ Enter passphrase: <enter your passphrase>
 ```
 
 If `ENV["YAML_VAULT_PASSPHRASE"]`, use it as passphrase
+
+Note to pass the same `--suffix` and `--prefix` if the yaml was encrypted using these options.
 
 #### AWS KMS Decryption
 

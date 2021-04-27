@@ -3,11 +3,13 @@ require 'yaml'
 
 module YamlVault
   class YAMLTreeBuilder < YAML::TreeBuilder
-    def initialize(target_paths, cryptor, mode)
+    def initialize(target_paths, prefix, suffix, cryptor, mode)
       super()
 
       @path_stack = []
       @target_paths = target_paths
+      @prefix = prefix
+      @suffix = suffix
       @cryptor = cryptor
       @mode = mode
     end
@@ -74,7 +76,9 @@ module YamlVault
           else
             result.value = @cryptor.encrypt(value)
           end
+          result.value = add_prefix_and_suffix(result.value)
         else
+          value = remove_prefix_and_suffix(value)
           decrypted_value = @cryptor.decrypt(value).to_s
           if decrypted_value =~ /\A(!.*?)\s+(.*)\z/
             result.tag = $1
@@ -99,6 +103,20 @@ module YamlVault
     end
 
     private
+
+    def add_prefix_and_suffix(value)
+      return "#{@prefix}#{value}#{@suffix}"
+    end
+
+    def remove_prefix_and_suffix(value)
+      if @prefix != nil && value.start_with?(@prefix)
+        value = value.delete_prefix(@prefix)
+      end
+      if @suffix != nil && value.end_with?(@suffix)
+        value = value.delete_suffix(@suffix)
+      end
+      value
+    end
 
     def match_path?
       @target_paths.any? do |target_path|
