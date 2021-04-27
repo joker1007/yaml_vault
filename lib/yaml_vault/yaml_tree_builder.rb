@@ -76,9 +76,9 @@ module YamlVault
           else
             result.value = @cryptor.encrypt(value)
           end
-          result.value = handle_prefix(result.value)
+          result.value = add_prefix_and_suffix(result.value)
         else
-          value = handle_suffix(value)
+          value = remove_prefix_and_suffix(value)
           decrypted_value = @cryptor.decrypt(value).to_s
           if decrypted_value =~ /\A(!.*?)\s+(.*)\z/
             result.tag = $1
@@ -104,11 +104,11 @@ module YamlVault
 
     private
 
-    def handle_prefix(value)
+    def add_prefix_and_suffix(value)
       return "#{@prefix}#{value}#{@suffix}"
     end
 
-    def handle_suffix(value)
+    def remove_prefix_and_suffix(value)
       if @prefix != nil && value.start_with?(@prefix)
         value = value.delete_prefix(@prefix)
       end
