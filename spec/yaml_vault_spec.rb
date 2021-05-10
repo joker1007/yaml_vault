@@ -68,7 +68,7 @@ describe YamlVault, aggregate_failures: true do
       it 'generate encrypt yaml' do
         yaml_file = File.expand_path("../sample.yml", __FILE__)
         origin = YAML.load_file(yaml_file)
-        encrypted = YAML.load(YamlVault::Main.from_file(yaml_file, [["$", "vault"], ["$", "default", /\Aa/]], "{ENC:", "}", passphrase: "testpassphrase", sign_passphrase: "signpassphrase").encrypt_yaml)
+        encrypted = YAML.load(YamlVault::Main.from_file(yaml_file, [["$", "vault"], ["$", "default", /\Aa/]], nil, "{ENC:", "}", passphrase: "testpassphrase", sign_passphrase: "signpassphrase").encrypt_yaml)
         aggregate_failures do
           expect(origin["vault"]["secret_data"]).to eq "hogehoge"
           expect(origin["vault"]["secrets"][0]).to eq 0
