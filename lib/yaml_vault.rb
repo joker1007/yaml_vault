@@ -11,16 +11,16 @@ require 'yaml_vault/yaml_tree_builder'
 module YamlVault
   class Main
     class << self
-      def from_file(filename, keys, prefix = nil, suffix = nil, cryptor_name = nil, **options)
+      def from_file(filename, keys, cryptor_name = nil, prefix = nil, suffix = nil, **options)
         yaml_content = ERB.new(File.read(filename)).result
-        new(yaml_content, keys, prefix, suffix, cryptor_name, **options)
+        new(yaml_content, keys, cryptor_name, prefix, suffix, **options)
       end
 
       alias :from_content :new
     end
 
     def initialize(
-      yaml_content, keys, prefix = nil, suffix = nil, cryptor_name = nil,
+      yaml_content, keys, cryptor_name = nil, prefix = nil, suffix = nil,
       passphrase: nil, sign_passphrase: nil, salt: nil, cipher: "aes-256-cbc", key_len: 32, signature_key_len: 64, digest: "SHA256",
       aws_kms_key_id: nil, aws_region: nil, aws_access_key_id: nil, aws_secret_access_key: nil, aws_profile: nil,
       gcp_kms_resource_id: nil, gcp_credential_file: nil
