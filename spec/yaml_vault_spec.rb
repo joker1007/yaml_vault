@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe YamlVault, aggregate_failures: true do
+  using YamlVault::YAMLCompat
   describe ".encrypt_yaml" do
     context "use sign_passphrase" do
       it 'generate encrypt yaml' do
