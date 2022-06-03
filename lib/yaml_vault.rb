@@ -7,8 +7,10 @@ require 'pp'
 
 require 'yaml_vault/key_parser'
 require 'yaml_vault/yaml_tree_builder'
+require 'yaml_vault/yaml_compat'
 
 module YamlVault
+  using YamlVault::YAMLCompat
   class Main
     class << self
       def from_file(filename, keys, cryptor_name = nil, prefix = nil, suffix = nil, **options)
