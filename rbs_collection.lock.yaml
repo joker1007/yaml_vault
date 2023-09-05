@@ -1,0 +1,118 @@
+---
+sources:
+- type: git
+  name: ruby/gem_rbs_collection
+  revision: b42e4de88058603a34446942143b3ac197b9685c
+  remote: https://github.com/ruby/gem_rbs_collection.git
+  repo_dir: gems
+path: ".gem_rbs_collection"
+gems:
+- name: activesupport
+  version: '7.0'
+  source:
+    type: git
+    name: ruby/gem_rbs_collection
+    revision: b42e4de88058603a34446942143b3ac197b9685c
+    remote: https://github.com/ruby/gem_rbs_collection.git
+    repo_dir: gems
+- name: aws-sdk-core
+  version: '3'
+  source:
+    type: git
+    name: ruby/gem_rbs_collection
+    revision: b42e4de88058603a34446942143b3ac197b9685c
+    remote: https://github.com/ruby/gem_rbs_collection.git
+    repo_dir: gems
+- name: aws-sdk-kms
+  version: '1'
+  source:
+    type: git
+    name: ruby/gem_rbs_collection
+    revision: b42e4de88058603a34446942143b3ac197b9685c
+    remote: https://github.com/ruby/gem_rbs_collection.git
+    repo_dir: gems
+- name: concurrent-ruby
+  version: '1.1'
+  source:
+    type: git
+    name: ruby/gem_rbs_collection
+    revision: b42e4de88058603a34446942143b3ac197b9685c
+    remote: https://github.com/ruby/gem_rbs_collection.git
+    repo_dir: gems
+- name: date
+  version: '0'
+  source:
+    type: stdlib
+- name: erb
+  version: '0'
+  source:
+    type: stdlib
+- name: faraday
+  version: '2.5'
+  source:
+    type: git
+    name: ruby/gem_rbs_collection
+    revision: b42e4de88058603a34446942143b3ac197b9685c
+    remote: https://github.com/ruby/gem_rbs_collection.git
+    repo_dir: gems
+- name: forwardable
+  version: '0'
+  source:
+    type: stdlib
+- name: httpclient
+  version: '2.8'
+  source:
+    type: git
+    name: ruby/gem_rbs_collection
+    revision: b42e4de88058603a34446942143b3ac197b9685c
+    remote: https://github.com/ruby/gem_rbs_collection.git
+    repo_dir: gems
+- name: i18n
+  version: '1.10'
+  source:
+    type: git
+    name: ruby/gem_rbs_collection
+    revision: b42e4de88058603a34446942143b3ac197b9685c
+    remote: https://github.com/ruby/gem_rbs_collection.git
+    repo_dir: gems
+- name: jwt
+  version: '2.5'
+  source:
+    type: git
+    name: ruby/gem_rbs_collection
+    revision: b42e4de88058603a34446942143b3ac197b9685c
+    remote: https://github.com/ruby/gem_rbs_collection.git
+    repo_dir: gems
+- name: logger
+  version: '0'
+  source:
+    type: stdlib
+- name: minitest
+  version: '0'
+  source:
+    type: stdlib
+- name: monitor
+  version: '0'
+  source:
+    type: stdlib
+- name: mutex_m
+  version: '0'
+  source:
+    type: stdlib
+- name: securerandom
+  version: '0'
+  source:
+    type: stdlib
+- name: singleton
+  version: '0'
+  source:
+    type: stdlib
+- name: time
+  version: '0'
+  source:
+    type: stdlib
+- name: uri
+  version: '0'
+  source:
+    type: stdlib
+gemfile_lock_path: Gemfile.lock
