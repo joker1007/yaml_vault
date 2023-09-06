@@ -134,7 +134,7 @@ module YamlVault
           options[:access_key_id] = aws_access_key_id if aws_access_key_id
           options[:secret_access_key] = aws_secret_access_key if aws_secret_access_key
           options[:profile] = aws_profile if aws_profile
-          @client = Aws::KMS::Client.new(options)
+          @client = Aws::KMS::Client.new(**options)
           @key_id = key_id
         end
 

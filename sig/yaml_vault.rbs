@@ -1,0 +1,54 @@
+module YamlVault
+  class Main
+    @yaml: String
+    @keys: Array[String]
+    @prefix: String
+    @suffix: String
+    @passphrase: String
+    @sign_passphrase: String
+    @salt: String
+    @cipher: String
+    @key_len: Integer
+    @signature_key_len: Integer
+    @digest: String
+    @aws_kms_key_id: String
+    @aws_region: String
+    @aws_access_key_id: String
+    @aws_secret_access_key: String
+    @aws_profile: String
+    @gcp_kms_resource_id: String
+    @gcp_credential_file: String
+    @cryptor: _Cryptor
+
+    def encrypt: () -> untyped
+    def decrypt: () -> untyped
+    def encrypt_hash: () -> Hash[String, Object]
+    def decrypt_hash: () -> Hash[String, Object]
+    def encrypt_yaml: () -> String
+    def decrypt_yaml: () -> String
+    def get_cryptor: (String) -> _Cryptor
+
+    module ValueCryptor
+      class KMS
+        @client: Aws::KMS::Client
+        @key_id: String
+
+        def encrypt: (String) -> String
+        def decrypt: (String) -> String
+      end
+
+      class GCPKMS
+        @client: untyped # Google::Apis::CloudkmsV1::CloudKMSService
+        @resource_id: String
+
+        def encrypt: (String) -> String
+        def decrypt: (String) -> String
+      end
+    end
+  end
+
+  interface _Cryptor
+    def encrypt: (String) -> String
+    def decrypt: (String) -> String
+  end
+end
