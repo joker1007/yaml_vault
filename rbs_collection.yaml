@@ -20,5 +20,3 @@ gems:
     ignore: true
   - name: steep
     ignore: true
-  - name: yaml_vault
-    ignore: true

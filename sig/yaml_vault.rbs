@@ -33,16 +33,18 @@ module YamlVault
         @client: Aws::KMS::Client
         @key_id: String
 
-        def encrypt: (String) -> String
-        def decrypt: (String) -> String
+        def initialize: (String, ?region: String?, ?aws_access_key_id: String?, ?aws_secret_access_key: String?, ?aws_profile: String?) -> void
+
+        include _Cryptor
       end
 
       class GCPKMS
         @client: untyped # Google::Apis::CloudkmsV1::CloudKMSService
         @resource_id: String
 
-        def encrypt: (String) -> String
-        def decrypt: (String) -> String
+        def initialize: (String, String) -> void
+
+        include _Cryptor
       end
     end
   end
